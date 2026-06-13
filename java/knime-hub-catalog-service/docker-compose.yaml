@@ -1,0 +1,116 @@
+version: '3.1'
+
+# Notes:
+# - ensure the exposed ports match catalog service/test usage
+# - ensure the mino access/secret keys match catalog service/test usage
+
+services:
+
+  postgresPrimary:
+    image: bitnamilegacy/postgresql:16
+    networks:
+      - backend
+    environment:
+      POSTGRESQL_POSTGRES_PASSWORD: knimeAdmin
+      POSTGRESQL_USERNAME: knime
+      POSTGRESQL_PASSWORD: knime
+      POSTGRESQL_DATABASE: knimehub
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_REPLICATION_USER: knime_repl_user
+      POSTGRESQL_REPLICATION_PASSWORD: knime
+      POSTGRESQL_SYNCHRONOUS_COMMIT_MODE: "remote_apply"
+      POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS: 1
+
+  postgresSecondary:
+    image: bitnamilegacy/postgresql:16
+    networks:
+      - backend
+    depends_on:
+      - postgresPrimary
+    environment:
+      POSTGRESQL_PASSWORD: knime
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_REPLICATION_USER: knime_repl_user
+      POSTGRESQL_REPLICATION_PASSWORD: knime
+      POSTGRESQL_MASTER_HOST: postgresPrimary
+      POSTGRESQL_MASTER_PORT_NUMBER: 5432
+
+  opa:
+    image: openpolicyagent/opa:1.12.3
+    networks:
+      - backend
+    # To enable debug logs use:
+    # run --server --log-level=error --set=decision_logs.console=true --log-format=json-pretty
+    # To enable authorization via policy use:
+    # command: run --server --authentication=token --authorization=basic
+    # See: https://www.openpolicyagent.org/docs/latest/security/#authentication-and-authorization
+    command: run --server --addr :8181 --log-level=error
+
+  # Start minio with the bucket named "repository" created.
+  minio:
+    image: minio/minio:RELEASE.2022-03-17T06-34-49Z
+    networks:
+      - backend
+    environment:
+      MINIO_ROOT_USER: 4b5aeec7528c41e9e9dcfd618103aa72
+      MINIO_ROOT_PASSWORD: 6a0eef319d6133ebe1d0f4b086543ccf
+    entrypoint: sh
+    command: -c 'mkdir -p /data/repository && minio server /data --console-address :9111'
+
+  broker:
+    image: 910065342149.dkr.ecr.eu-west-1.amazonaws.com/knime/activemq-artemis:2.52.0-stable-0025-2ea2b51
+    networks:
+      - backend
+    environment:
+      ARTEMIS_USER: knime
+      ARTEMIS_PASSWORD: knime
+      ENABLE_MESSAGE_AUDIT: "true"
+      JAVA_OPTIONS: -Xmx512m
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
+
+  # NATS message broker for artifacts service
+  nats:
+    image: nats:2.10.9
+    networks:
+      - backend
+    command: -js --user=knime --pass=knime --cluster_name Nats
+
+  # Artifacts Service
+  artifacts-service:
+    image: 910065342149.dkr.ecr.eu-west-1.amazonaws.com/knime/knime-hub-artifacts:0.18.1-beta-20260302-114335-000205-9ef7f1d
+    networks:
+      - backend
+    extra_hosts:
+      - "localhost:host-gateway"
+    command: ["/app/app", "-plain"]
+    environment:
+      - SERVICE_ACCOUNT_ID_CATALOG_SERVICE=00000000-0000-0000-0000-000000000000
+    volumes:
+      - ./secrets:/app/.secrets:ro
+      - ./artifacts-config.yaml:/app/config.yaml:ro
+    depends_on:
+      - nats
+      - minio
+      - broker
+
+  # Artifacts Zipper Service
+  zipper:
+    image: 910065342149.dkr.ecr.eu-west-1.amazonaws.com/knime/knime-hub-artifacts-zipper:1.9.0-stable-0113-a7eea8d
+    networks:
+      - backend
+    extra_hosts:
+      - "localhost:host-gateway"
+    volumes:
+      - ./secrets:/app/.secrets:ro
+      - ./zipper-config.yaml:/app/config.yaml:ro
+    depends_on:
+      - nats
+      - artifacts-service
+
+networks:
+  backend:
+    name: ${COMPOSE_PROJECT_NAME}-network
+    driver: bridge
