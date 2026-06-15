@@ -20,6 +20,11 @@
       // `"moby": true` is the default but not supported on Debian Trixie, which
       // is what mcr.microsoft.com/devcontainers/java:21 currently ships on.
       "moby": false
+    },
+    // AWS CLI (for pulling images for integration tests)
+    "ghcr.io/devcontainers/features/aws-cli:latest": {
+      // Match version on host for consistency.
+      "version": "2.23.9"
     }
   },
   "mounts": [
@@ -35,11 +40,14 @@
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
-  // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
-  // with the keychain, create a long-lived OAuth token using `claude setup-token` on the host and make it available as
-  // `CLAUDE_CODE_OAUTH_TOKEN` in the container, which Claude recognizes automatically.
   "runArgs": [
+    // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
+    // with the keychain, create a long-lived OAuth token using `claude setup-token` on the host and make it available as
+    // `CLAUDE_CODE_OAUTH_TOKEN` in the container, which Claude recognizes automatically.
     "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/claude_code.env"
+    "${localEnv:HOME}/dev/claude-config/.credentials/claude_code.env",
+    // Read-only access to AWS ECR (for pulling images for integration tests).
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/aws_ecr.env"
   ]
 }
