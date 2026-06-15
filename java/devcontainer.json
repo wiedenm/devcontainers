@@ -7,6 +7,8 @@
     // Claude (+ Node dependency)
     "ghcr.io/devcontainers/features/node:latest": {},
     "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
+    // Git LFS
+    "ghcr.io/devcontainers/features/git-lfs:latest": {},
     // Maven
     "ghcr.io/devcontainers/features/java:latest": {
       // Only include Maven here, Java is already part of the base image.
