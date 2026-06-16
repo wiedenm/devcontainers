@@ -36,6 +36,8 @@
     // Include files symlinked from the .claude directory above.
     "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached",
     // Maven config and cache
+    // TODO: Writing to .m2 concurrently is not safe. Is there a way to mount this read-only (i.e. does Maven support
+    // read-only caches)?
     "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached"
   ],
   "containerEnv": {
