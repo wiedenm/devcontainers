@@ -21,13 +21,15 @@ else
     cp "$SOURCE_DIR/devcontainer.json" "$TARGET"
 fi
 
-TARGET=$TARGET_DIR/up.sh
-if [ -e "$TARGET" ]; then
-    echo "Skipping $TARGET (already exists)"
-else
-    CURRENT_DIR=$(dirname "$(realpath "$0")")
-    cp "$CURRENT_DIR/up.sh" "$TARGET"
-    chmod +x "$TARGET"
-fi
+CURRENT_DIR=$(dirname "$(realpath "$0")")
+for name in up.sh copy-to-container.sh; do
+    TARGET=$TARGET_DIR/$name
+    if [ -e "$TARGET" ]; then
+        echo "Skipping $TARGET (already exists)"
+    else
+        cp "$CURRENT_DIR/$name" "$TARGET"
+        chmod +x "$TARGET"
+    fi
+done
 
 echo "done."
