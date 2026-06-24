@@ -50,8 +50,14 @@
     // `CLAUDE_CODE_OAUTH_TOKEN` in the container, which Claude recognizes automatically.
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/claude_code.env",
+    // Read-only access to GitHub (`GITHUB_TOKEN`)
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/github.env",
     // Read-only access to AWS ECR (for pulling images for integration tests).
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/aws_ecr.env"
-  ]
+  ],
+  // Configure git to use the access token defined above. Replace any use of SSH inside the container by HTTPS to make
+  // sure token auth works.
+  "postStartCommand": "git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""
 }
