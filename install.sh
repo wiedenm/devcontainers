@@ -22,7 +22,7 @@ else
 fi
 
 CURRENT_DIR=$(dirname "$(realpath "$0")")
-for name in up.sh copy-to-container.sh; do
+for name in up.sh down.sh copy-to-container.sh; do
     TARGET=$TARGET_DIR/$name
     if [ -e "$TARGET" ]; then
         echo "Skipping $TARGET (already exists)"
