@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Simplifies stopping a running devcontainer without having to look up its name/ID and going via the `docker` CLI.
+# Simplifies stopping and removing a running devcontainer without having to look up its name/ID and going via the
+# `docker` CLI.
 # Assumes the script's located in <worktree>/.devcontainers.
  
 set -euo pipefail
@@ -13,3 +14,4 @@ if [[ -z "$container" ]]; then
 fi
  
 docker stop "$container"
+docker rm "$container"
