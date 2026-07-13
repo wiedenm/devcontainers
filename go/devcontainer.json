@@ -32,6 +32,9 @@
     // Go build cache (macOS; on Linux it should be at ~/.cache/go-build on the host too)
     "source=${localEnv:HOME}/Library/Caches/go-build,target=/home/vscode/.cache/go-build,type=bind,consistency=cached"
   ],
+  // Add access to all git repos by making them part of the workspace.
+  "workspaceMount": "source=${localEnv:HOME}/git,target=/workspaces/git,type=bind,consistency=cached",
+  "workspaceFolder": "/workspaces/git/${localWorkspaceFolderBasename}",
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
