@@ -1,0 +1,29 @@
+{
+  "name": "claude-code-base",
+  // Node (see features below) doesn't work with Alpine, so use Debian as the most minimal supported base image.
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  "remoteUser": "vscode",
+  "features": {
+    // Claude (+ Node dependency)
+    "ghcr.io/devcontainers/features/node:latest": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+  },
+  "mounts": [
+    // Claude config, skills, etc.
+    "source=${localEnv:HOME}/.claude,target=/vscode/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/vscode/.claude.json,type=bind,consistency=cached",
+    // Include files symlinked from the .claude directory above.
+    "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/vscode/.claude",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "runArgs": [
+    // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
+    // with the keychain, create a long-lived OAuth token using `claude setup-token` on the host and make it available as
+    // `CLAUDE_CODE_OAUTH_TOKEN` in the container, which Claude recognizes automatically.
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/claude_code.env"
+  ]
+}
