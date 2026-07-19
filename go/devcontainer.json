@@ -37,7 +37,9 @@
   "workspaceFolder": "/workspaces/git/${localWorkspaceFolderBasename}",
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    // Advertise truecolor so Claude renders full-color themes instead of falling back to 8-color mode.
+    "COLORTERM": "truecolor"
   },
   "runArgs": [
     // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
