@@ -27,7 +27,9 @@
     "ghcr.io/devcontainers/features/aws-cli:latest": {
       // Match version on host for consistency.
       "version": "2.23.9"
-    }
+    },
+    // GitHub CLI
+    "ghcr.io/devcontainers/features/github-cli:latest": {}
   },
   "mounts": [
     // Claude config, skills, etc.

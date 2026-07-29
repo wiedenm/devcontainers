@@ -6,7 +6,9 @@
   "features": {
     // Claude (+ Node dependency)
     "ghcr.io/devcontainers/features/node:latest": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
+    // GitHub CLI
+    "ghcr.io/devcontainers/features/github-cli:latest": {}
   },
   "mounts": [
     // Claude config, skills, etc.
