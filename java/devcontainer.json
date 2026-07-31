@@ -41,6 +41,9 @@
     // twice in the container, once as the workspace folder and once among the git repos, but that shouldn't be a
     // problem.
     "source=${localEnv:HOME}/git,target=/workspaces/git,type=bind,consistency=cached",
+    // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when git is used
+    // via SSH.
+    "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached",
     // Maven config and cache
     // TODO: Writing to .m2 concurrently is not safe. Is there a way to mount this read-only (i.e. does Maven support
     // read-only caches)?

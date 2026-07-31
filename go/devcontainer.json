@@ -33,6 +33,9 @@
     // twice in the container, once as the workspace folder and once among the git repos, but that shouldn't be a
     // problem.
     "source=${localEnv:HOME}/git,target=/workspaces/git,type=bind,consistency=cached",
+    // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when git is used
+    // via SSH.
+    "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached",
     // Go module cache
     "source=${localEnv:HOME}/go/pkg/mod,target=/home/vscode/go/pkg/mod,type=bind,consistency=cached",
     // Go build cache (macOS; on Linux it should be at ~/.cache/go-build on the host too)
