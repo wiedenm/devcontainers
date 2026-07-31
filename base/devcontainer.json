@@ -15,7 +15,11 @@
     "source=${localEnv:HOME}/.claude,target=/vscode/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.claude.json,target=/vscode/.claude.json,type=bind,consistency=cached",
     // Include files symlinked from the .claude directory above.
-    "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached",
+    // Add access to all git repos. Note that the git repo from which the dev container is launched will be mounted
+    // twice in the container, once as the workspace folder and once among the git repos, but that shouldn't be a
+    // problem.
+    "source=${localEnv:HOME}/git,target=/workspaces/git,type=bind,consistency=cached"
   ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",

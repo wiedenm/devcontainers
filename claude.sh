@@ -6,4 +6,4 @@
 WORKTREE=$(dirname "$(dirname "$(realpath "$0")")")
 
 devcontainer exec --workspace-folder "$WORKTREE" -- \
-  zsh -i -c "claude --dangerously-skip-permissions; exec zsh -i"
+  zsh -i -c "claude --dangerously-skip-permissions --add-dir /workspaces/git; exec zsh -i"
