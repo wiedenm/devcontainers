@@ -33,6 +33,11 @@
     // twice in the container, once as the workspace folder and once among the git repos, but that shouldn't be a
     // problem.
     "source=${localEnv:HOME}/git,target=/workspaces/git,type=bind,consistency=cached",
+    // Add global .gitconfig and .gitignore. The config is mounted to a path not recognized by git, as we need to make
+    // some container-specific additions to (a copy of) it, see postStartCommand below. The .gitignore is assumed to be
+    // referenced from .gitconfig using a relative path.
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
     // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when git is used
     // via SSH.
     "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached",
@@ -60,7 +65,7 @@
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/aws_ecr.env"
   ],
-  // Configure git to use the access token defined above. Replace any use of SSH inside the container by HTTPS to make
-  // sure token auth works.
-  "postStartCommand": "git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""
+  // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
+  // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
+  "postStartCommand": "cp ~/.gitconfig-host ~/.gitconfig && { git config --global --remove-section url.\"ssh://git@github.com\" || true; } && git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""
 }
