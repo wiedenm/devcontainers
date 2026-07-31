@@ -24,10 +24,7 @@
     // some container-specific additions to (a copy of) it, see postStartCommand below. The .gitignore is assumed to be
     // referenced from .gitconfig using a relative path.
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
-    "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
-    // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when git is used
-    // via SSH.
-    "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly"
   ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",

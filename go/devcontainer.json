@@ -38,9 +38,9 @@
     // referenced from .gitconfig using a relative path.
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
-    // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when git is used
-    // via SSH.
-    "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached",
+    // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when Git LFS
+    // uses git via SSH.
+    "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached,readonly",
     // Go module cache
     "source=${localEnv:HOME}/go/pkg/mod,target=/home/vscode/go/pkg/mod,type=bind,consistency=cached",
     // Go build cache (macOS; on Linux it should be at ~/.cache/go-build on the host too)
