@@ -22,7 +22,7 @@ else
 fi
 
 CURRENT_DIR=$(dirname "$(realpath "$0")")
-for name in claude.sh copy-to-container.sh down.sh up.sh; do
+for name in claude.sh copy-to-container.sh down.sh extract-claude-credentials.sh up.sh; do
     TARGET=$TARGET_DIR/$name
     if [ -e "$TARGET" ]; then
         echo "Skipping $TARGET (already exists)"

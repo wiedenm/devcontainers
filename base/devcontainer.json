@@ -14,6 +14,10 @@
     // Claude config, skills, etc.
     "source=${localEnv:HOME}/.claude,target=/vscode/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.claude.json,target=/vscode/.claude.json,type=bind,consistency=cached",
+    // Claude credentials, extracted from the host's keychain by extract-claude-credentials.sh (which up.sh runs before
+    // starting the container). Mounted into the .claude directory above, where Claude picks it up automatically. Claude
+    // refreshes the tokens in place, so the refreshed ones are written back to the host through this mount.
+    "source=${localEnv:HOME}/dev/claude-config/.credentials/claude_code.credentials.json,target=/vscode/.claude/.credentials.json,type=bind,consistency=cached",
     // Include files symlinked from the .claude directory above.
     "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached",
     // Add access to all git repos. Note that the git repo from which the dev container is launched will be mounted
@@ -33,11 +37,8 @@
     "COLORTERM": "truecolor"
   },
   "runArgs": [
-    // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
-    // with the keychain, create a long-lived OAuth token using `claude setup-token` on the host and make it available as
-    // `CLAUDE_CODE_OAUTH_TOKEN` in the container, which Claude recognizes automatically.
-    "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/claude_code.env",
+    // Note: Claude's credentials are not passed in here as `CLAUDE_CODE_OAUTH_TOKEN` (as created by `claude
+    // setup-token`), because that variable takes precedence over the mounted .credentials.json above and would mask it.
     // Read-only access to GitHub (`GITHUB_TOKEN`)
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/github.env"
