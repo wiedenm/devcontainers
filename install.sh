@@ -32,4 +32,6 @@ for name in claude.sh copy-to-container.sh down.sh up.sh; do
     fi
 done
 
+echo "*" > "$TARGET_DIR/.gitignore"
+
 echo "done."
