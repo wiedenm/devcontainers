@@ -71,7 +71,10 @@
     "${localEnv:HOME}/dev/claude-config/.credentials/github.env",
     // Read-only access to AWS ECR (for pulling images for integration tests).
     "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/aws_ecr.env"
+    "${localEnv:HOME}/dev/claude-config/.credentials/aws_ecr.env",
+    // Read-only access to Jira.
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/jira-ro.env"
   ],
   // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
   // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
