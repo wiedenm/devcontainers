@@ -29,7 +29,14 @@
       "version": "2.23.9"
     },
     // GitHub CLI
-    "ghcr.io/devcontainers/features/github-cli:latest": {}
+    "ghcr.io/devcontainers/features/github-cli:latest": {},
+    // Helm
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:latest": {
+      "helm": "latest",
+      // Exclude kubectl and minikube from this combined feature.
+      "version": "none",
+      "minikube": "none"
+    }
   },
   "mounts": [
     // Claude config, skills, etc.
