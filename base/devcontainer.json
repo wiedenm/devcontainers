@@ -24,8 +24,14 @@
     // some container-specific additions to (a copy of) it, see postStartCommand below. The .gitignore is assumed to be
     // referenced from .gitconfig using a relative path.
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
-    "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly"
+    "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
+    // Pre-built Linux binaries shared across containers.
+    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached,readonly"
   ],
+  "remoteEnv": {
+    // Add the pre-built Linux binaries to the container's PATH.
+    "PATH": "${containerEnv:PATH}:/opt/host-bin"
+  },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",

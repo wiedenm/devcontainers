@@ -45,6 +45,8 @@
     // referenced from .gitconfig using a relative path.
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
+    // Pre-built Linux binaries shared across containers.
+    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached,readonly",
     // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when Git LFS
     // uses git via SSH.
     "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached,readonly",
@@ -53,6 +55,10 @@
     // Go build cache (macOS; on Linux it should be at ~/.cache/go-build on the host too)
     "source=${localEnv:HOME}/Library/Caches/go-build,target=/home/vscode/.cache/go-build,type=bind,consistency=cached"
   ],
+  "remoteEnv": {
+    // Add the pre-built Linux binaries to the container's PATH.
+    "PATH": "${containerEnv:PATH}:/opt/host-bin"
+  },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",

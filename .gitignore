@@ -1,1 +1,3 @@
+bin/*
+!bin/README.md
 devcontainer-lock.json
