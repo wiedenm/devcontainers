@@ -30,7 +30,9 @@
   ],
   "remoteEnv": {
     // Add the pre-built Linux binaries to the container's PATH.
-    "PATH": "${containerEnv:PATH}:/opt/host-bin"
+    "PATH": "${containerEnv:PATH}:/opt/host-bin",
+    // The knime-build-system-mcp plugin reads the Dependency Track key under a different name.
+    "DTRACK_API_KEY": "${containerEnv:DT_API_KEY}"
   },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
@@ -58,8 +60,14 @@
     "${localEnv:HOME}/dev/claude-config/.credentials/grafana.env",
     // Access to Dependency Track.
     "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/dependency-track.env"
+    "${localEnv:HOME}/dev/claude-config/.credentials/dependency-track.env",
+    // Access to Jenkins.
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/jenkins.env"
   ],
+  // Keep pixi environments out of project folders shared with the macOS host, and prebuild the environment of the
+  // knime-build-system-mcp plugin, which may take longer on first start than Claude Code waits for the MCP server.
+  "postCreateCommand": "pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done",
   // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
   // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
   "postStartCommand": "cp ~/.gitconfig-host ~/.gitconfig && { git config --global --remove-section url.\"ssh://git@github.com\" || true; } && git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""
