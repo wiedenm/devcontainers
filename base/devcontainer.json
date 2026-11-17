@@ -26,7 +26,7 @@
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
     // Pre-built Linux binaries shared across containers.
-    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached,readonly"
+    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     // Add the pre-built Linux binaries to the container's PATH.
