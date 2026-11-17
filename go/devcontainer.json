@@ -65,7 +65,9 @@
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     // Advertise truecolor so Claude renders full-color themes instead of falling back to 8-color mode.
-    "COLORTERM": "truecolor"
+    "COLORTERM": "truecolor",
+    // Config for the KNIME Hub MCP.
+    "KNIME_HUB_MCP_HUBS_FILE": "${localEnv:HOME}/dev/claude-config/mcp/config/knime-hubclient-hubs.yaml"
   },
   "runArgs": [
     // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
@@ -93,7 +95,10 @@
     "${localEnv:HOME}/dev/claude-config/.credentials/dependency-track.env",
     // Access to Jenkins.
     "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/jenkins.env"
+    "${localEnv:HOME}/dev/claude-config/.credentials/jenkins.env",
+    // Access to KNIME Hub.
+    "--env-file",
+    "${localEnv:HOME}/dev/claude-config/.credentials/knime-hub.env"
   ],
   // Keep pixi environments out of project folders shared with the macOS host, and prebuild the environment of the
   // knime-build-system-mcp plugin, which may take longer on first start than Claude Code waits for the MCP server.
