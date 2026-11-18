@@ -1,7 +1,7 @@
 {
-  "name": "claude-code-java",
-  // Built by build-images.sh from images/java.
-  "image": "claude-code-java:latest",
+  "name": "claude-code",
+  // Built by build-image.sh from image/.
+  "image": "claude-code-devcontainer:latest",
   "remoteUser": "vscode",
   "mounts": [
     // Claude config, skills, etc.
@@ -29,6 +29,10 @@
     // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when Git LFS
     // uses git via SSH.
     "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached,readonly",
+    // Go module cache
+    "source=${localEnv:HOME}/go/pkg/mod,target=/home/vscode/go/pkg/mod,type=bind,consistency=cached",
+    // Go build cache (macOS; on Linux it should be at ~/.cache/go-build on the host too)
+    "source=${localEnv:HOME}/Library/Caches/go-build,target=/home/vscode/.cache/go-build,type=bind,consistency=cached",
     // Maven config and cache
     // TODO: Writing to .m2 concurrently is not safe. Is there a way to mount this read-only (i.e. does Maven support
     // read-only caches)?

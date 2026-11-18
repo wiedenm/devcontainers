@@ -1,5 +1,4 @@
-ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/base:debian
-FROM ${BASE_IMAGE}
+FROM mcr.microsoft.com/devcontainers/go:1.26
 
 # Claude Code's native install lives in the claude-code volume shared by all containers (see devcontainer.json). Docker
 # seeds a new volume from the image, so lay it out here, with the paths the installer and auto-updater use linked to it.

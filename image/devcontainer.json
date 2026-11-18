@@ -1,13 +1,17 @@
 {
+  // Go, from the base image in the Dockerfile.
   "build": {
-    "dockerfile": "../Dockerfile",
-    "context": "..",
-    "args": {
-      // Go
-      "BASE_IMAGE": "mcr.microsoft.com/devcontainers/go:1.26"
-    }
+    "dockerfile": "Dockerfile"
   },
   "features": {
+    // Java 21 and Maven
+    "ghcr.io/devcontainers/features/java:latest": {
+      "version": "21",
+      "jdkDistro": "ms",
+      "installMaven": "true",
+      // Match version on host for consistency.
+      "mavenVersion": "3.9.7"
+    },
     // Git LFS
     "ghcr.io/devcontainers/features/git-lfs:latest": {},
     // Docker-in-Docker (for integration tests)
