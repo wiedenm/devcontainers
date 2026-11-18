@@ -1,11 +1,11 @@
 #!/bin/bash
 #
 # Sets up the target directory for use with devcontainers.
-# Usage: ./install.sh <target-dir>
+# Usage: ./install.sh [<target-dir>] (default: current directory)
 
 set -euo pipefail
 
-TARGET_DIR="$(realpath "${1:?Usage: $0 <target-directory>}")"
+TARGET_DIR="$(realpath "${1:-.}")"
 
 echo "Setting up $TARGET_DIR..."
 
