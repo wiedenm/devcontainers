@@ -36,6 +36,10 @@
     "source=${localEnv:HOME}/.claude.json,target=/vscode/.claude.json,type=bind,consistency=cached",
     // Include files symlinked from the .claude directory above.
     "source=${localEnv:HOME}/dev/claude-config,target=${localEnv:HOME}/dev/claude-config,type=bind,consistency=cached",
+    // Hide the credentials, which are passed in as env vars instead (see runArgs).
+    "type=tmpfs,target=${localEnv:HOME}/dev/claude-config/.credentials,tmpfs-mode=0755",
+    // Except for the AWS credentials, which are refreshed while the container runs (see initializeCommand).
+    "source=${localEnv:HOME}/dev/claude-config/.credentials/aws,target=${localEnv:HOME}/dev/claude-config/.credentials/aws,type=bind,consistency=cached,readonly",
     // Add access to all git repos. Note that the git repo from which the dev container is launched will be mounted
     // twice in the container, once as the workspace folder and once among the git repos, but that shouldn't be a
     // problem.
@@ -80,9 +84,9 @@
     // Read-only access to GitHub (`GITHUB_TOKEN`)
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/github.env",
-    // Read-only access to Jira.
+    // Access to Jira.
     "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/jira-ro.env",
+    "${localEnv:HOME}/dev/claude-config/.credentials/jira.env",
     // Access to OpenSearch.
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/opensearch.env",
