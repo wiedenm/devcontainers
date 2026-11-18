@@ -75,7 +75,9 @@
     // Advertise truecolor so Claude renders full-color themes instead of falling back to 8-color mode.
     "COLORTERM": "truecolor",
     // Config for the KNIME Hub MCP.
-    "KNIME_HUB_MCP_HUBS_FILE": "${localEnv:HOME}/dev/claude-config/mcp/config/knime-hubclient-hubs.yaml"
+    "KNIME_HUB_MCP_HUBS_FILE": "${localEnv:HOME}/dev/claude-config/mcp/config/knime-hubclient-hubs.yaml",
+    // AWS credentials, refreshed on the host by aws/refresh-credentials.sh (see initializeCommand).
+    "AWS_CONFIG_FILE": "${localEnv:HOME}/dev/claude-config/.credentials/aws/config"
   },
   "runArgs": [
     // On macOS, Claude stores its credentials in the keychain rather than ~/.claude/.credentials.json. To avoid fiddling
@@ -86,9 +88,6 @@
     // Read-only access to GitHub (`GITHUB_TOKEN`)
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/github.env",
-    // Read-only access to AWS ECR (for pulling images for integration tests).
-    "--env-file",
-    "${localEnv:HOME}/dev/claude-config/.credentials/aws-ecr.env",
     // Read-only access to Jira.
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/jira-ro.env",
@@ -108,9 +107,12 @@
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/knime-hub.env"
   ],
+  // Start refreshing AWS credentials on the host, unless already running.
+  "initializeCommand": "launchctl print gui/$(id -u)/devcontainers.aws-refresh-credentials >/dev/null 2>&1 || launchctl bootstrap gui/$(id -u) ${localEnv:HOME}/dev/devcontainers/aws/refresh-credentials.plist",
   // Keep pixi environments out of project folders shared with the macOS host, and prebuild the environment of the
   // knime-build-system-mcp plugin, which may take longer on first start than Claude Code waits for the MCP server.
-  "postCreateCommand": "pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done",
+  // Also, let Docker pull from ECR with the AWS credentials above.
+  "postCreateCommand": "pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done; mkdir -p ~/.docker && echo '{\"credHelpers\":{\"910065342149.dkr.ecr.eu-west-1.amazonaws.com\":\"ecr-login\"}}' > ~/.docker/config.json",
   // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
   // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
   "postStartCommand": "cp ~/.gitconfig-host ~/.gitconfig && { git config --global --remove-section url.\"ssh://git@github.com\" || true; } && git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""
