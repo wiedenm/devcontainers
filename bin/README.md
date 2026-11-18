@@ -17,3 +17,11 @@ cd ~/git/dttop && CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ~/dev/devcon
 # pixi
 
 curl -fsSL -o ~/dev/devcontainers/bin/pixi https://github.com/prefix-dev/pixi/releases/latest/download/pixi-aarch64-unknown-linux-musl && chmod +x ~/dev/devcontainers/bin/pixi
+
+# helm
+
+curl -fsSL https://get.helm.sh/helm-v4.3.2-linux-arm64.tar.gz | tar -xzO linux-arm64/helm > ~/dev/devcontainers/bin/helm && chmod +x ~/dev/devcontainers/bin/helm
+
+# mcp-grafana
+
+curl -fsSL https://github.com/grafana/mcp-grafana/releases/latest/download/mcp-grafana_Linux_arm64.tar.gz | tar -xzO mcp-grafana > ~/dev/devcontainers/bin/mcp-grafana && chmod +x ~/dev/devcontainers/bin/mcp-grafana

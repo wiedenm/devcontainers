@@ -1,0 +1,12 @@
+ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/base:debian
+FROM ${BASE_IMAGE}
+
+# Claude Code's native install lives in the claude-code volume shared by all containers (see devcontainer.json). Docker
+# seeds a new volume from the image, so lay it out here, with the paths the installer and auto-updater use linked to it.
+RUN mkdir -p /opt/claude-code/bin /opt/claude-code/share /opt/claude-code/state /opt/claude-code/cache \
+        /home/vscode/.local/share /home/vscode/.local/state /home/vscode/.cache \
+    && ln -s /opt/claude-code/bin /home/vscode/.local/bin \
+    && ln -s /opt/claude-code/share /home/vscode/.local/share/claude \
+    && ln -s /opt/claude-code/state /home/vscode/.local/state/claude \
+    && ln -s /opt/claude-code/cache /home/vscode/.cache/claude \
+    && chown -R vscode:vscode /opt/claude-code /home/vscode/.local /home/vscode/.cache

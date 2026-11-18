@@ -18,17 +18,16 @@ TARGET=$TARGET_DIR/devcontainer.json
 if [ -e "$TARGET" ]; then
     echo "Skipping $TARGET (already exists)"
 else
-    cp "$SOURCE_DIR/devcontainer.json" "$TARGET"
+    ln -s "$SOURCE_DIR/devcontainer.json" "$TARGET"
 fi
 
 CURRENT_DIR=$(dirname "$(realpath "$0")")
-for name in claude.sh copy-to-container.sh down.sh up.sh; do
+for name in claude.sh copy-to-container.sh down.sh rebuild.sh stop.sh up.sh; do
     TARGET=$TARGET_DIR/$name
     if [ -e "$TARGET" ]; then
         echo "Skipping $TARGET (already exists)"
     else
-        cp "$CURRENT_DIR/$name" "$TARGET"
-        chmod +x "$TARGET"
+        ln -s "$CURRENT_DIR/$name" "$TARGET"
     fi
 done
 

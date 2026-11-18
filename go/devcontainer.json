@@ -1,35 +1,8 @@
 {
   "name": "claude-code-golang",
-  // Go
-  "image": "mcr.microsoft.com/devcontainers/go:1.26",
+  // Built by build-images.sh from images/go.
+  "image": "claude-code-go:latest",
   "remoteUser": "vscode",
-  "features": {
-    // Claude (+ Node dependency)
-    "ghcr.io/devcontainers/features/node:latest": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
-    // Git LFS
-    "ghcr.io/devcontainers/features/git-lfs:latest": {},
-    // Docker-in-Docker (for integration tests)
-    "ghcr.io/devcontainers/features/docker-in-docker:latest": {
-      // `"moby": true` is the default but not supported on Debian Trixie, which
-      // is what mcr.microsoft.com/devcontainers/go:1.26 currently ships on.
-      "moby": false
-    },
-    // AWS CLI (for pulling images for integration tests)
-    "ghcr.io/devcontainers/features/aws-cli:latest": {
-      // Match version on host for consistency.
-      "version": "2.23.9"
-    },
-    // GitHub CLI
-    "ghcr.io/devcontainers/features/github-cli:latest": {},
-    // Helm
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:latest": {
-      "helm": "latest",
-      // Exclude kubectl and minikube from this combined feature.
-      "version": "none",
-      "minikube": "none"
-    }
-  },
   "mounts": [
     // Claude config, skills, etc.
     "source=${localEnv:HOME}/.claude,target=/vscode/.claude,type=bind,consistency=cached",
@@ -51,6 +24,8 @@
     "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
     // Pre-built Linux binaries shared across containers.
     "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached",
+    // Claude Code's native install, shared by all containers so that one auto-update reaches all of them.
+    "source=claude-code,target=/opt/claude-code,type=volume",
     // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when Git LFS
     // uses git via SSH.
     "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached,readonly",
@@ -60,14 +35,17 @@
     "source=${localEnv:HOME}/Library/Caches/go-build,target=/home/vscode/.cache/go-build,type=bind,consistency=cached"
   ],
   "remoteEnv": {
-    // Add the pre-built Linux binaries to the container's PATH.
-    "PATH": "${containerEnv:PATH}:/opt/host-bin",
+    // Add Claude Code and the pre-built Linux binaries to the container's PATH.
+    "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}:/opt/host-bin",
     // The knime-build-system-mcp plugin reads the Dependency Track key under a different name.
     "DTRACK_API_KEY": "${containerEnv:DT_API_KEY}"
   },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    // Rather than CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC, which also turns off auto-updates.
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_FEEDBACK_COMMAND": "1",
     // Advertise truecolor so Claude renders full-color themes instead of falling back to 8-color mode.
     "COLORTERM": "truecolor",
     // Config for the KNIME Hub MCP.
@@ -105,10 +83,11 @@
   ],
   // Start refreshing AWS credentials on the host, unless already running.
   "initializeCommand": "launchctl print gui/$(id -u)/devcontainers.aws-refresh-credentials >/dev/null 2>&1 || launchctl bootstrap gui/$(id -u) ${localEnv:HOME}/dev/devcontainers/aws/refresh-credentials.plist",
+  // Install Claude Code into the shared volume, unless an earlier container did.
   // Keep pixi environments out of project folders shared with the macOS host, and prebuild the environment of the
   // knime-build-system-mcp plugin, which may take longer on first start than Claude Code waits for the MCP server.
   // Also, let Docker pull from ECR with the AWS credentials above.
-  "postCreateCommand": "pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done; mkdir -p ~/.docker && echo '{\"credHelpers\":{\"910065342149.dkr.ecr.eu-west-1.amazonaws.com\":\"ecr-login\"}}' > ~/.docker/config.json",
+  "postCreateCommand": "[ -x ~/.local/bin/claude ] || curl -fsSL https://claude.ai/install.sh | bash; pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done; mkdir -p ~/.docker && echo '{\"credHelpers\":{\"910065342149.dkr.ecr.eu-west-1.amazonaws.com\":\"ecr-login\"}}' > ~/.docker/config.json",
   // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
   // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
   "postStartCommand": "cp ~/.gitconfig-host ~/.gitconfig && { git config --global --remove-section url.\"ssh://git@github.com\" || true; } && git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""

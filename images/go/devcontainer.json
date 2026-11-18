@@ -1,0 +1,27 @@
+{
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": "..",
+    "args": {
+      // Go
+      "BASE_IMAGE": "mcr.microsoft.com/devcontainers/go:1.26"
+    }
+  },
+  "features": {
+    // Git LFS
+    "ghcr.io/devcontainers/features/git-lfs:latest": {},
+    // Docker-in-Docker (for integration tests)
+    "ghcr.io/devcontainers/features/docker-in-docker:latest": {
+      // `"moby": true` is the default but not supported on Debian Trixie, which
+      // is what mcr.microsoft.com/devcontainers/go:1.26 currently ships on.
+      "moby": false
+    },
+    // AWS CLI (for pulling images for integration tests)
+    "ghcr.io/devcontainers/features/aws-cli:latest": {
+      // Match version on host for consistency.
+      "version": "2.23.9"
+    },
+    // GitHub CLI
+    "ghcr.io/devcontainers/features/github-cli:latest": {}
+  }
+}

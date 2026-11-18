@@ -1,15 +1,8 @@
 {
   "name": "claude-code-base",
-  // Node (see features below) doesn't work with Alpine, so use Debian as the most minimal supported base image.
-  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  // Built by build-images.sh from images/base.
+  "image": "claude-code-base:latest",
   "remoteUser": "vscode",
-  "features": {
-    // Claude (+ Node dependency)
-    "ghcr.io/devcontainers/features/node:latest": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
-    // GitHub CLI
-    "ghcr.io/devcontainers/features/github-cli:latest": {}
-  },
   "mounts": [
     // Claude config, skills, etc.
     "source=${localEnv:HOME}/.claude,target=/vscode/.claude,type=bind,consistency=cached",
@@ -28,17 +21,22 @@
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.gitignore,target=/home/vscode/.gitignore,type=bind,consistency=cached,readonly",
     // Pre-built Linux binaries shared across containers.
-    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached",
+    // Claude Code's native install, shared by all containers so that one auto-update reaches all of them.
+    "source=claude-code,target=/opt/claude-code,type=volume"
   ],
   "remoteEnv": {
-    // Add the pre-built Linux binaries to the container's PATH.
-    "PATH": "${containerEnv:PATH}:/opt/host-bin",
+    // Add Claude Code and the pre-built Linux binaries to the container's PATH.
+    "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}:/opt/host-bin",
     // The knime-build-system-mcp plugin reads the Dependency Track key under a different name.
     "DTRACK_API_KEY": "${containerEnv:DT_API_KEY}"
   },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/vscode/.claude",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    // Rather than CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC, which also turns off auto-updates.
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_FEEDBACK_COMMAND": "1",
     // Advertise truecolor so Claude renders full-color themes instead of falling back to 8-color mode.
     "COLORTERM": "truecolor",
     // Config for the KNIME Hub MCP.
@@ -72,9 +70,10 @@
     "--env-file",
     "${localEnv:HOME}/dev/claude-config/.credentials/knime-hub.env"
   ],
+  // Install Claude Code into the shared volume, unless an earlier container did.
   // Keep pixi environments out of project folders shared with the macOS host, and prebuild the environment of the
   // knime-build-system-mcp plugin, which may take longer on first start than Claude Code waits for the MCP server.
-  "postCreateCommand": "pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done",
+  "postCreateCommand": "[ -x ~/.local/bin/claude ] || curl -fsSL https://claude.ai/install.sh | bash; pixi config set --global detached-environments true; for m in /vscode/.claude/plugins/cache/dev-tools/knime-build-system-mcp/*/pyproject.toml; do [ ! -f \"$m\" ] || pixi install --frozen --manifest-path \"$m\" || echo \"pixi install failed for $m\" >&2; done",
   // Copy over the host's git config as template. Modify it to make sure git uses the access token defined above, by
   // replacing any use of SSH inside the container by HTTPS to make sure token auth works.
   "postStartCommand": "cp ~/.gitconfig-host ~/.gitconfig && { git config --global --remove-section url.\"ssh://git@github.com\" || true; } && git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\""

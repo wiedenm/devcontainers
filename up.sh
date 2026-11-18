@@ -3,7 +3,7 @@
 # Simplifies starting up containers with support for git worktrees.
 # Assumes the script's located in <worktree>/.devcontainers.
 
-WORKTREE=$(dirname "$(dirname "$(realpath "$0")")")
+WORKTREE=$(dirname "$(cd "$(dirname "$0")" && pwd -P)")
 
 devcontainer up \
   --workspace-folder "$WORKTREE" \
