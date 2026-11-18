@@ -26,6 +26,8 @@
     "source=${localEnv:HOME}/dev/devcontainers/bin,target=/opt/host-bin,type=bind,consistency=cached",
     // Claude Code's native install, shared by all containers so that one auto-update reaches all of them.
     "source=claude-code,target=/opt/claude-code,type=volume",
+    // pixi's package cache and environments, shared by all containers so that packages are downloaded only once.
+    "source=pixi-cache,target=/home/vscode/.cache/rattler,type=volume",
     // Include known hosts to avoid "The authenticity of host 'github.com [...]' can't be established." when Git LFS
     // uses git via SSH.
     "source=${localEnv:HOME}/.ssh/known_hosts,target=/home/vscode/.ssh/known_hosts,type=bind,consistency=cached,readonly",
